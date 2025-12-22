@@ -1,120 +1,184 @@
-# WeatherAI - AI-Powered Weather App
+# WeatherApp - AI-Powered Weather Application
 
-A modern, full-stack weather application built with React, TypeScript, Tailwind CSS, and integrated with Claude AI for intelligent weather insights. Features include saved locations, weather history, and CRUD operations powered by Supabase.
+A modern, full-stack weather application built with Next.js 14, featuring real-time weather data, AI-powered insights, and comprehensive user authentication.
 
-## Features
+![WeatherApp](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?style=flat-square&logo=typescript)
+![WeatherAPI](https://img.shields.io/badge/WeatherAPI-Integrated-orange?style=flat-square)
+![Claude AI](https://img.shields.io/badge/Claude_AI-Powered-purple?style=flat-square)
 
-- 🌤️ **Real-time Weather Data** - Get accurate weather forecasts using OpenWeather API
-- 🤖 **AI-Powered Insights** - Claude AI generates personalized weather insights and recommendations
-- 💾 **Saved Locations** - Save and manage multiple locations with favorite markers
-- 📊 **Weather History** - Track weather history for your saved locations
-- 📱 **Responsive Design** - Beautiful, mobile-friendly UI with Tailwind CSS
-- 🔄 **CRUD Operations** - Full database integration with Supabase
-- ⚡ **Fast & Modern** - Built with Next.js 14 for optimal performance
+## 🌟 Features
 
-## Tech Stack
+### Weather Features
+- 🌤️ **Real-time Weather Data** - Accurate 7-day forecasts using WeatherAPI.com
+- 📊 **24-Hour Hourly Forecast** - Detailed hour-by-hour predictions
+- 🗺️ **Global Location Search** - Search any city worldwide
+- 💾 **Saved Locations** - Save and manage multiple favorite locations
+- ⚠️ **Weather Alerts** - Severe weather warnings and notifications
+- 📍 **Auto-Location Detection** - Automatically fetch weather for your location
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS, Next.js 14
+### AI Features
+- 🤖 **AI-Powered Insights** - Claude AI generates personalized weather analysis
+- 💡 **Smart Recommendations** - Activity suggestions based on conditions
+- 🎯 **Contextual Advice** - What to wear, when to go out, and more
+
+### User Features
+- 🔐 **User Authentication** - Sign up and sign in functionality
+- 👤 **User Profiles** - Personalized experience with saved preferences
+- 📱 **Responsive Design** - Beautiful UI on all devices
+- 🎨 **Modern UI** - Glassmorphism design with smooth animations
+
+### Additional Pages
+- 🏠 **Home/Dashboard** - Main weather interface
+- 📖 **About Page** - Learn about the app and technology
+- 🔑 **Sign In/Sign Up** - User authentication pages
+- 🚫 **Custom 404** - Friendly error page
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript 5.3
+- **Styling**: Tailwind CSS
 - **State Management**: Zustand
-- **API Integration**: Axios
-- **Database**: Supabase (PostgreSQL)
-- **AI**: Claude API (Anthropic)
-- **Weather Data**: OpenWeather API
-- **Deployment**: Vercel
+- **Icons**: Lucide React
+- **HTTP Client**: Axios
 
-## Prerequisites
+### Backend & APIs
+- **Weather API**: WeatherAPI.com (7-day forecast)
+- **AI Service**: Google Gemini AI (gemini-pro model)
+- **Database**: Supabase (PostgreSQL)
+- **Places API**: Google Places (optional)
+- **Deployment**: Vercel-ready
+
+## 📋 Prerequisites
 
 - Node.js 18+ and npm
-- Supabase account
-- OpenWeather API key
-- Anthropic API key (for Claude AI)
-- Google Places API key (optional, for location autocomplete)
+- WeatherAPI account and API key
+- Supabase account (for database)
+- Google API key (for Gemini AI and Places API)
+- Google Places API enabled (for enhanced search - optional)
 
-## Environment Setup
+## 🚀 Quick Start
 
-1. Clone the repository:
+### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd Weather-app
+cd Weather-app-main
 ```
 
-2. Install dependencies:
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-3. Create a `.env.local` file based on `.env.example`:
-```bash
-cp .env.example .env.local
-```
+### 3. Environment Setup
 
-4. Fill in your environment variables:
-```
-NEXT_PUBLIC_OPENWEATHER_API_KEY=your_openweather_api_key
-NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=your_google_api_key
+Create a `.env.local` file in the root directory:
+
+```env
+# Weather API (Required)
+NEXT_PUBLIC_WEATHERAPI_KEY=your_weatherapi_key_here
+
+# Google API Key (for both Gemini AI and Places API)
+# Note: If both GEMINI_API_KEY and GOOGLE_API_KEY are set, GOOGLE_API_KEY takes precedence
+GOOGLE_API_KEY=your_google_api_key_here
+
+# Or use separate keys (optional)
+# GEMINI_API_KEY=your_gemini_api_key_here
+# NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
+
+# Supabase Configuration (Required for database features)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# App URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-## Database Setup
+### 4. Database Setup
 
 1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. In the SQL Editor, run the following schema:
 
-2. In the Supabase SQL Editor, run the contents of `database.sql` to create tables and indexes:
-   - `saved_locations` - Store user's saved weather locations
-   - `weather_history` - Track historical weather data
-   - `ai_insights` - Store AI-generated insights
+```sql
+-- Create saved_locations table
+CREATE TABLE IF NOT EXISTS saved_locations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  country TEXT,
+  lat DECIMAL(10, 8) NOT NULL,
+  lon DECIMAL(11, 8) NOT NULL,
+  is_favorite BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, lat, lon)
+);
 
-3. Copy your Supabase URL and anon key to `.env.local`
+-- Create weather_history table
+CREATE TABLE IF NOT EXISTS weather_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  location_id UUID REFERENCES saved_locations(id) ON DELETE CASCADE,
+  temperature DECIMAL(5, 2) NOT NULL,
+  condition TEXT NOT NULL,
+  timestamp TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-## API Keys Setup
+-- Create ai_insights table
+CREATE TABLE IF NOT EXISTS ai_insights (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  location_id UUID NOT NULL,
+  insight TEXT NOT NULL,
+  suggestions TEXT[] DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-### OpenWeather API
-1. Sign up at [openweathermap.org](https://openweathermap.org)
-2. Generate an API key
-3. Add to `NEXT_PUBLIC_OPENWEATHER_API_KEY`
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_saved_locations_user_id ON saved_locations(user_id);
+CREATE INDEX IF NOT EXISTS idx_saved_locations_is_favorite ON saved_locations(is_favorite);
+CREATE INDEX IF NOT EXISTS idx_weather_history_user_id ON weather_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_weather_history_location_id ON weather_history(location_id);
+CREATE INDEX IF NOT EXISTS idx_ai_insights_user_id ON ai_insights(user_id);
+```
 
-### Claude AI (Anthropic)
-1. Create account at [console.anthropic.com](https://console.anthropic.com)
-2. Generate an API key
-3. Add to `ANTHROPIC_API_KEY` (kept secure on server side)
+### 5. Run the Application
 
-### Google Places API (Optional)
-1. Enable Maps and Places APIs in Google Cloud Console
-2. Generate API key
-3. Add to `NEXT_PUBLIC_GOOGLE_PLACES_API_KEY`
-
-## Running the App
-
-### Development
+**Development Mode:**
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Production Build
+Open [http://localhost:3000](http://localhost:3000) (or port shown in terminal)
+
+**Production Build:**
 ```bash
 npm run build
 npm start
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-Weather-app/
+Weather-app-main/
 ├── src/
 │   ├── app/
 │   │   ├── api/              # API routes
-│   │   │   ├── locations/    # Location CRUD endpoints
 │   │   │   ├── history/      # Weather history endpoints
-│   │   │   └── weather/      # Weather and AI insight endpoints
-│   │   ├── layout.tsx        # Root layout
-│   │   ├── page.tsx          # Main page
+│   │   │   ├── locations/    # Location CRUD endpoints
+│   │   │   └── weather/      # Weather & AI insight endpoints
+│   │   ├── about/            # About page
+│   │   ├── signin/           # Sign in page
+│   │   ├── signup/           # Sign up page
+│   │   ├── layout.tsx        # Root layout with metadata
+│   │   ├── page.tsx          # Main dashboard
+│   │   ├── not-found.tsx     # Custom 404 page
 │   │   └── globals.css       # Global styles
 │   ├── components/           # React components
-│   │   ├── Header.tsx
+│   │   ├── Header.tsx        # Navigation header
 │   │   ├── CurrentWeather.tsx
 │   │   ├── WeatherDetails.tsx
 │   │   ├── ForecastCard.tsx
@@ -122,13 +186,13 @@ Weather-app/
 │   │   ├── SavedLocations.tsx
 │   │   └── AIInsight.tsx
 │   ├── lib/
-│   │   ├── api.ts           # Weather API client
+│   │   ├── api.ts           # WeatherAPI client
 │   │   ├── supabase.ts      # Database operations
-│   │   └── ai.ts            # AI service (Claude)
+│   │   └── ai.ts            # Claude AI service
 │   ├── store/
 │   │   └── weatherStore.ts  # Zustand state management
 │   └── types/
-│       └── index.ts         # TypeScript type definitions
+│       └── index.ts         # TypeScript definitions
 ├── database.sql             # Database schema
 ├── package.json
 ├── tailwind.config.ts
@@ -136,143 +200,185 @@ Weather-app/
 └── tsconfig.json
 ```
 
-## Key Features Implementation
+## 🔑 API Keys Setup
 
-### 1. Weather Display
-- Current weather with real-time data
-- 5-day forecast
-- 24-hour hourly forecast
-- Weather alerts
+### WeatherAPI (Required)
+1. Sign up at [weatherapi.com](https://www.weatherapi.com/)
+2. Get your free API key from the dashboard
+3. Add to `.env.local` as `NEXT_PUBLIC_WEATHERAPI_KEY`
 
-### 2. Location Management (CRUD)
-- Save multiple locations
-- Mark favorites
-- Edit location details
-- Delete locations
-- Quick location switching
+### Google API Key (Required for AI Insights)
 
-### 3. AI Insights
-- Claude-generated weather analysis
-- Smart activity recommendations
-- Personalized suggestions based on conditions
-- Weather trend analysis
+**Option 1: Using GOOGLE_API_KEY (Recommended)**
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create or select a project
+3. Generate an API key
+4. Enable **Generative Language API** (for Gemini)
+5. Optionally enable **Places API** (for location search)
+6. Add to `.env.local` as `GOOGLE_API_KEY`
 
-### 4. Database Integration
-- Persistent data storage with Supabase
-- Weather history tracking
-- User preferences
-- Audit trail of AI insights
+**Option 2: Using GEMINI_API_KEY**
+1. Same steps as above
+2. Add to `.env.local` as `GEMINI_API_KEY`
 
-### 5. Responsive Design
-- Mobile-first approach
-- Gradient UI with glassmorphism
-- Touch-friendly interfaces
-- Optimized for all screen sizes
+**Note**: If both `GEMINI_API_KEY` and `GOOGLE_API_KEY` are set, `GOOGLE_API_KEY` takes precedence.
 
-## API Endpoints
+The same API key can be used for both Gemini AI insights and Google Places autocomplete if both APIs are enabled in your Google Cloud project.
 
-### Locations
-- `GET /api/locations` - Get all saved locations
-- `POST /api/locations` - Create new location
-- `GET /api/locations/[id]` - Get specific location
-- `PUT /api/locations/[id]` - Update location
-- `DELETE /api/locations/[id]` - Delete location
+## 💡 Usage Guide
 
-### Weather History
-- `GET /api/history` - Get weather history
-- `POST /api/history` - Record weather
+### Basic Usage
+1. **Auto-Location**: App automatically detects your location and shows weather
+2. **Search**: Use the search bar to find any city worldwide
+3. **View Details**: See current weather, 7-day forecast, and hourly predictions
+4. **Save Locations**: Add frequently checked locations to favorites
+
+### Authentication
+1. **Sign Up**: Create an account at `/signup`
+2. **Sign In**: Log in at `/signin`
+3. **Profile**: View your name in the header when logged in
 
 ### AI Insights
-- `POST /api/weather/insight` - Generate AI insight
+1. Click "Generate AI Insight" button
+2. Wait for Claude AI to analyze current conditions
+3. Receive personalized weather insights and suggestions
+4. Regenerate for updated recommendations
 
-## Deployment to Vercel
+## 🎨 Features Breakdown
 
-1. Push code to GitHub:
+### Weather Data Display
+- Current temperature with "feels like"
+- Weather condition with emoji icons
+- High/Low temperatures for the day
+- Wind speed, direction, and gusts
+- Humidity percentage
+- Visibility distance
+- UV index
+- Cloud coverage
+- Atmospheric pressure
+
+### Forecast Views
+- **7-Day Forecast**: Daily weather cards with highs/lows
+- **24-Hour Forecast**: Hourly temperature and conditions
+- **Weather Alerts**: Severe weather warnings when available
+
+### Smart Features
+- **Quick Stats Widget**: Key metrics at a glance
+- **Saved Locations Panel**: Manage favorite places
+- **Weather History**: Track past conditions (with database)
+- **AI Recommendations**: Activity suggestions based on weather
+
+## 🚀 Deployment
+
+### Deploy to Vercel (Recommended)
+
+1. Push to GitHub:
 ```bash
+git init
 git add .
 git commit -m "Initial commit"
 git push origin main
 ```
 
-2. Import project to Vercel:
+2. Import to Vercel:
    - Go to [vercel.com](https://vercel.com)
    - Click "New Project"
    - Import your GitHub repository
-   - Set environment variables in Vercel dashboard
-   - Deploy
+   - Add environment variables
+   - Deploy!
 
-3. Set environment variables in Vercel:
-   - `NEXT_PUBLIC_OPENWEATHER_API_KEY`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `ANTHROPIC_API_KEY`
-   - `NEXT_PUBLIC_APP_URL` (your Vercel domain)
+3. Configure Environment Variables in Vercel:
+   - Add all variables from `.env.local`
+   - Update `NEXT_PUBLIC_APP_URL` to your Vercel domain
 
-## Usage
+## 🔧 Configuration
 
-1. **Get Weather**: The app automatically fetches weather for your current location
-2. **Search**: Use the search bar to find different cities
-3. **Save Location**: Click on locations to save them for quick access
-4. **AI Insights**: Click "Generate AI Insight" for smart recommendations
-5. **View History**: Check past weather records in your saved locations
-6. **Manage**: Edit or delete saved locations with one click
+### Tailwind CSS Classes
+Custom utility classes available:
+- `.card` - Glassmorphic card with backdrop blur
+- `.btn-primary` - Primary button styling
+- `.btn-secondary` - Secondary button styling
+- `.input-field` - Styled input field
+- `.bg-gradient-primary` - App gradient background
 
-## Performance Optimizations
+### Weather Icons
+Weather conditions are mapped to emoji icons:
+- ☀️ Clear/Sunny
+- ☁️ Cloudy/Overcast
+- 🌧️ Rain
+- ⛈️ Thunderstorm
+- ❄️ Snow
+- 🌫️ Fog/Mist
+- 🌤️ Default/Partly Cloudy
 
-- Next.js Image optimization
-- Code splitting and lazy loading
-- Efficient state management with Zustand
-- Database indexes for fast queries
-- Caching strategies for API calls
+## 🐛 Troubleshooting
 
-## Security Considerations
+### Weather not loading
+- Check `NEXT_PUBLIC_WEATHERAPI_KEY` is correct
+- Verify API key is active at weatherapi.com
+- Check browser console for error messages
 
-- API keys kept in environment variables
-- Supabase Row-Level Security (RLS) can be enabled
-- HTTPS enforced on Vercel
-- Input validation on API routes
-- No sensitive data in client-side code
+### AI Insights not working
+- Verify `ANTHROPIC_API_KEY` is set
+- Check API quota at console.anthropic.com
+- Review server logs for detailed errors
 
-## Troubleshooting
+### Database issues
+- Confirm Supabase credentials are correct
+- Verify database tables exist (run `database.sql`)
+- Check Supabase dashboard for connection issues
 
-### Weather API not working
-- Verify OpenWeather API key is valid
-- Check API usage limits
-- Ensure coordinates are correct
+### Search not finding cities
+- Ensure WeatherAPI key has search permissions
+- Try searching with country code (e.g., "London, UK")
 
-### Database connection issues
-- Verify Supabase credentials in `.env.local`
-- Check database tables exist (run database.sql)
-- Ensure RLS policies allow access if enabled
+## 📈 Performance
 
-### AI insights not generating
-- Check Anthropic API key is valid
-- Verify API usage quota
-- Check error logs in browser console
+- ⚡ Next.js 14 App Router for optimal performance
+- 🎯 Code splitting and lazy loading
+- 🗄️ Efficient state management with Zustand
+- 📦 Optimized production builds
+- 🔄 Automatic hot reloading in development
 
-## Future Enhancements
+## 🔒 Security
 
-- User authentication and profiles
-- Weather alerts and notifications
-- Integration with smart home devices
-- Multiple language support
-- Dark/light theme toggle
-- Export weather reports
-- Community weather observations
-- Advanced weather analytics
+- Environment variables for sensitive data
+- Server-side API key storage (Anthropic)
+- Client-side keys scoped with NEXT_PUBLIC prefix
+- HTTPS enforced in production
+- Input validation on all forms
+- SQL injection protection with Supabase
 
-## Contributing
+## 📝 License
 
-Contributions are welcome! Please follow the existing code style and submit pull requests.
+MIT License - Free to use for personal and commercial projects.
 
-## License
+## 🤝 Contributing
 
-MIT License - feel free to use this project for personal or commercial purposes.
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## Support
+## 📧 Support
 
-For issues or questions, please open an issue on GitHub or contact the development team.
+For issues, questions, or suggestions:
+- Open an issue on GitHub
+- Email: contact@weatherapp.com
+- Check the About page in the app
+
+## 🎉 Acknowledgments
+
+- **WeatherAPI.com** for weather data
+- **Anthropic** for Claude AI
+- **Supabase** for database hosting
+- **Vercel** for deployment platform
+- **Next.js** team for the amazing framework
 
 ---
 
-Built with ❤️ using React, TypeScript, and AI
+**Built with ❤️ using Next.js, TypeScript, WeatherAPI, and Claude AI**
+
+Version 2.0 - December 2025
